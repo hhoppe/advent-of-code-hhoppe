@@ -129,7 +129,11 @@ class Puzzle:
     lines = [(line[:80] + ' ... ' + line[-35:] if len(line) > 120 else line)
              for line in self.input.strip('\n').split('\n')]
     url = f'https://adventofcode.com/{self.advent.year}/day/{self.day}'
-    s = f'For [day {self.day}]({url}), `puzzle.input` has {len(lines)} lines:'
+    s = f'For [day {self.day}]({url}), `puzzle.input` has '
+    if len(lines) != 1:
+      s += f'{len(lines)} lines:'
+    else:
+      s += f'a single line of {len(lines[0])} characters:'
     IPython.display.display(IPython.display.Markdown(s))
     lines2 = lines[:8] + [' ...'] + lines[-4:] if len(lines) > 13 else lines
     print('\n'.join(lines2))
