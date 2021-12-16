@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib

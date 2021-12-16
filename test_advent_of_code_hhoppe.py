@@ -1,6 +1,6 @@
 import advent_of_code_hhoppe
 
-PROFILE = 'google.Hugues%20Hoppe.965276'
+PROFILE = 'google.Hugues_Hoppe.965276'
 INPUT_URL = f'https://github.com/hhoppe/advent_of_code_{{year}}/raw/main/data/{PROFILE}/{{year}}_{{day:02d}}_input.txt'
 ANSWER_URL = f'https://github.com/hhoppe/advent_of_code_{{year}}/raw/main/data/{PROFILE}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
 
