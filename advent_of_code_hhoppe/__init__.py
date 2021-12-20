@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
@@ -51,11 +51,14 @@ class PuzzlePart:
           for f in ('sys.stdout', 'sys.stderr', 'IPython.display.display'):
             stack.enter_context(unittest.mock.patch(f))
         start_time = time.time()
-        result = str(self.func(input_))
+        raw_result = self.func(input_)
+        if not isinstance(raw_result, [str, int]):
+          raise ValueError(f'Result {raw_result!r} is not type `str` or `int`.')
+        result = str(raw_result)
         elapsed_times.append(time.time() - start_time)
       if self.answer is not None:
         if result != self.answer:
-          raise AssertionError(f'Result {result!r} != expected {self.answer!r}')
+          raise ValueError(f'Result {result!r} != expected {self.answer!r}')
       else:
         print(f'Obtained result {result!r}.')
         if self.advent.use_aocd:
