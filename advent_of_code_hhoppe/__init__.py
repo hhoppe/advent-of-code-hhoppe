@@ -2,11 +2,12 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
 import dataclasses
+import numbers
 import pathlib
 import sys
 import time
@@ -15,7 +16,7 @@ import unittest.mock
 import urllib.error
 import urllib.request
 
-import IPython
+import IPython  # type:ignore
 
 
 def _read_contents(path_or_url: str) -> bytes:
@@ -38,6 +39,22 @@ class PuzzlePart:
   slow: bool = False
   elapsed_time: float = -0.0  # Negative zero to show that it never ran.
 
+  def _aocd_submit(self, result: str) -> Optional[str]:
+    """Submit a result to adventofcode.com and return the answer."""
+    import aocd  # type:ignore
+    puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
+    if self.part == 1:
+      puz.answer_a = result  # Submit.
+      if puz.answered_a:
+        return puz.answer_a
+    elif self.part == 2:
+      puz.answer_b = result
+      if puz.answered_b:
+        return puz.answer_b
+    else:
+      raise AssertionError()
+    return None
+
   def compute(self, input_: str, silent: bool = False, repeat: int = 1) -> None:
     """Run the stored function on the selected input."""
     assert self.func
@@ -52,7 +69,7 @@ class PuzzlePart:
             stack.enter_context(unittest.mock.patch(f))
         start_time = time.time()
         raw_result = self.func(input_)
-        if not isinstance(raw_result, (str, int)):
+        if not isinstance(raw_result, (str, numbers.Integral)):
           raise ValueError(f'Result {raw_result!r} is not type `str` or `int`.')
         result = str(raw_result)
         elapsed_times.append(time.time() - start_time)
@@ -62,18 +79,7 @@ class PuzzlePart:
       else:
         print(f'Obtained result {result!r}.')
         if self.advent.use_aocd:
-          import aocd
-          puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
-          if self.part == 1:
-            puz.answer_a = result  # Submit.
-            if puz.answered_a:
-              self.answer = puz.answer_a
-          elif self.part == 2:
-            puz.answer_b = result
-            if puz.answered_b:
-              self.answer = puz.answer_b
-          else:
-            raise AssertionError()
+          self.answer = self._aocd_submit(result)
         else:
           self.answer = result
     self.elapsed_time = min(elapsed_times)
@@ -142,7 +148,7 @@ class Puzzle:
     print('\n'.join(lines2))
     answers = {part: self.parts[part].answer for part in (1, 2)}
     IPython.display.display(IPython.display.Markdown(
-      f'The stored answers are: `{answers}`'))
+        f'The stored answers are: `{answers}`'))
 
   def verify(self, part: int, func: Callable[[str], Union[str, int]],
              slow: bool = False, repeat: int = 1) -> None:
