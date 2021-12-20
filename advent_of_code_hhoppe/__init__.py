@@ -52,7 +52,7 @@ class PuzzlePart:
             stack.enter_context(unittest.mock.patch(f))
         start_time = time.time()
         raw_result = self.func(input_)
-        if not isinstance(raw_result, [str, int]):
+        if not isinstance(raw_result, (str, int)):
           raise ValueError(f'Result {raw_result!r} is not type `str` or `int`.')
         result = str(raw_result)
         elapsed_times.append(time.time() - start_time)
