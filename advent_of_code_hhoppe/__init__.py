@@ -142,7 +142,8 @@ class Puzzle:
     if len(lines) != 1:
       s += f'{len(lines):_} lines:'
     else:
-      s += f'a single line of {len(self.input.strip("\n")):_} characters:'
+      line = self.input.strip('\n')
+      s += f'a single line of {len(line):_} characters:'
     IPython.display.display(IPython.display.Markdown(s))
     lines2 = lines[:8] + [' ...'] + lines[-4:] if len(lines) > 13 else lines
     print('\n'.join(lines2))
