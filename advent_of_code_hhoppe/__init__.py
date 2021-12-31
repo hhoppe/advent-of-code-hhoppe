@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '0.5.4'
+__version__ = '0.5.5'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
@@ -140,9 +140,9 @@ class Puzzle:
     url = f'https://adventofcode.com/{self.advent.year}/day/{self.day}'
     s = f'For [day {self.day}]({url}), `puzzle.input` has '
     if len(lines) != 1:
-      s += f'{len(lines)} lines:'
+      s += f'{len(lines):_} lines:'
     else:
-      s += f'a single line of {len(lines[0])} characters:'
+      s += f'a single line of {len(self.input.strip("\n")):_} characters:'
     IPython.display.display(IPython.display.Markdown(s))
     lines2 = lines[:8] + [' ...'] + lines[-4:] if len(lines) > 13 else lines
     print('\n'.join(lines2))
