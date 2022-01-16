@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '0.5.5'
+__version__ = '0.5.6'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
@@ -36,12 +36,11 @@ class PuzzlePart:
   part: int
   answer: Optional[str] = None
   func: Optional[Callable[[str], Union[str, int]]] = None
-  slow: bool = False
   elapsed_time: float = -0.0  # Negative zero to show that it never ran.
 
   def _aocd_submit(self, result: str) -> Optional[str]:
     """Submit a result to adventofcode.com and return the answer."""
-    import aocd  # type:ignore
+    import aocd  # type:ignore  # pylint: disable=import-error
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
     if self.part == 1:
       puz.answer_a = result  # Submit.
@@ -58,9 +57,6 @@ class PuzzlePart:
   def compute(self, input_: str, silent: bool = False, repeat: int = 1) -> None:
     """Run the stored function on the selected input."""
     assert self.func
-    if self.slow and not self.advent.slow_tests:
-      print('Skipping slow computation because `slow_tests` is False')
-      return
     elapsed_times = []
     for _ in range(repeat):
       with contextlib.ExitStack() as stack:
@@ -94,12 +90,9 @@ class Puzzle:
   day: int
   input: str = ''
   parts: Dict[int, PuzzlePart] = dataclasses.field(default_factory=dict)  # 1..2
-  silent: bool = False
 
   def __post_init__(self) -> None:
     self.advent.puzzles[self.day] = self
-    if self.input:
-      self.input = self.input.lstrip('\n')
     if not self.input and self.advent.input_url:
       url = self.advent.input_url.format(year=self.advent.year, day=self.day)
       try:
@@ -107,10 +100,9 @@ class Puzzle:
       except (urllib.error.HTTPError, FileNotFoundError):
         pass
     if not self.input and self.advent.use_aocd:
-      import aocd
+      import aocd  # pylint: disable=import-error
       puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
       self.input = puz.input_data
-    self.input.strip('\n')
     if not self.input:
       raise ValueError('The puzzle input cannot be determined.')
     for part in (1, 2):
@@ -124,14 +116,13 @@ class Puzzle:
         except (urllib.error.HTTPError, FileNotFoundError):
           pass
       if puzzle_part.answer is None and self.advent.use_aocd:
-        import aocd
+        import aocd  # pylint: disable=import-error
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
           puzzle_part.answer = puz.answer_a
         if part == 2 and puz.answered_b:
           puzzle_part.answer = puz.answer_b
-    if not self.silent:
-      self.print_summary()
+    self.print_summary()
 
   def print_summary(self) -> None:
     """Shows the puzzle input (possibly abbreviated) and any stored answers."""
@@ -152,11 +143,10 @@ class Puzzle:
         f'The stored answers are: `{answers}`'))
 
   def verify(self, part: int, func: Callable[[str], Union[str, int]],
-             slow: bool = False, repeat: int = 1) -> None:
+             repeat: int = 1) -> None:
     """Runs `func` on the puzzle input and check the answer for the part."""
     puzzle_part = self.parts[part]
     puzzle_part.func = func
-    puzzle_part.slow = slow
     puzzle_part.compute(self.input, repeat=repeat)
 
 
@@ -166,7 +156,6 @@ class Advent:
   year: int
   input_url: str = ''
   answer_url: str = ''
-  slow_tests: bool = False
   puzzles: Dict[int, Puzzle] = dataclasses.field(default_factory=dict)  # [day]
 
   def __post_init__(self) -> None:
