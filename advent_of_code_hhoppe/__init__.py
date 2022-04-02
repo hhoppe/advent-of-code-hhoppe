@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '0.5.6'
+__version__ = '0.5.7'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
@@ -63,12 +63,12 @@ class PuzzlePart:
         if silent:
           for f in ('sys.stdout', 'sys.stderr', 'IPython.display.display'):
             stack.enter_context(unittest.mock.patch(f))
-        start_time = time.time()
+        start_time = time.monotonic()
         raw_result = self.func(input_)
         if not isinstance(raw_result, (str, numbers.Integral)):
           raise ValueError(f'Result {raw_result!r} is not type `str` or `int`.')
         result = str(raw_result)
-        elapsed_times.append(time.time() - start_time)
+        elapsed_times.append(time.monotonic() - start_time)
       if self.answer is not None:
         if result != self.answer:
           raise ValueError(f'Result {result!r} != expected {self.answer!r}')
