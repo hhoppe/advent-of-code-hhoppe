@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '0.5.7'
+__version__ = '0.5.8'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
@@ -40,7 +40,8 @@ class PuzzlePart:
 
   def _aocd_submit(self, result: str) -> Optional[str]:
     """Submit a result to adventofcode.com and return the answer."""
-    import aocd  # type:ignore  # pylint: disable=import-error
+    # pylint: disable-next=import-error disable-next=import-outside-toplevel
+    import aocd  # type:ignore
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
     if self.part == 1:
       puz.answer_a = result  # Submit.
@@ -100,7 +101,8 @@ class Puzzle:
       except (urllib.error.HTTPError, FileNotFoundError):
         pass
     if not self.input and self.advent.use_aocd:
-      import aocd  # pylint: disable=import-error
+      # pylint: disable-next=import-error disable-next=import-outside-toplevel
+      import aocd
       puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
       self.input = puz.input_data
     if not self.input:
@@ -116,7 +118,8 @@ class Puzzle:
         except (urllib.error.HTTPError, FileNotFoundError):
           pass
       if puzzle_part.answer is None and self.advent.use_aocd:
-        import aocd  # pylint: disable=import-error
+        # pylint: disable-next=import-error disable-next=import-outside-toplevel
+        import aocd
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
           puzzle_part.answer = puz.answer_a
@@ -185,3 +188,8 @@ class Advent:
         total += puzzle_part.elapsed_time
       print(s)
     print(f'Total time:{total:#7.3f} s')
+
+
+# Local Variables:
+# fill-column: 80
+# End:
