@@ -3,16 +3,17 @@
 
 from __future__ import annotations
 __docformat__ = 'google'
-__version__ = '0.5.9'
+__version__ = '0.6.0'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
+from collections.abc import Callable
 import contextlib
 import dataclasses
 import numbers
 import pathlib
 import sys
 import time
-from typing import Any, Callable, Dict
+from typing import Any
 import unittest.mock
 import urllib.error
 import urllib.request
@@ -91,7 +92,7 @@ class Puzzle:
   advent: Advent = dataclasses.field(repr=False)
   day: int
   input: str = ''
-  parts: Dict[int, PuzzlePart] = dataclasses.field(default_factory=dict)  # 1..2
+  parts: dict[int, PuzzlePart] = dataclasses.field(default_factory=dict)  # 1..2
 
   def __post_init__(self) -> None:
     self.advent.puzzles[self.day] = self
@@ -160,7 +161,7 @@ class Advent:
   year: int
   input_url: str = ''
   answer_url: str = ''
-  puzzles: Dict[int, Puzzle] = dataclasses.field(default_factory=dict)  # [day]
+  puzzles: dict[int, Puzzle] = dataclasses.field(default_factory=dict)  # [day]
 
   def __post_init__(self) -> None:
     self.use_aocd = ('aocd' in sys.modules and
