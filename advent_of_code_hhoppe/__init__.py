@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Library for Advent of Code -- Hugues Hoppe."""
 
+from __future__ import annotations
 __docformat__ = 'google'
-__version__ = '0.5.8'
+__version__ = '0.5.9'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
@@ -11,12 +12,12 @@ import numbers
 import pathlib
 import sys
 import time
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict
 import unittest.mock
 import urllib.error
 import urllib.request
 
-import IPython  # type:ignore
+import IPython
 
 
 def _read_contents(path_or_url: str) -> bytes:
@@ -31,17 +32,17 @@ def _read_contents(path_or_url: str) -> bytes:
 @dataclasses.dataclass
 class PuzzlePart:
   """Part (1 or 2) of a daily puzzle."""
-  advent: 'Advent' = dataclasses.field(repr=False)
+  advent: Advent = dataclasses.field(repr=False)
   day: int
   part: int
-  answer: Optional[str] = None
-  func: Optional[Callable[[str], Union[str, int]]] = None
+  answer: str | None = None
+  func: Callable[[str], str | int] | None = None
   elapsed_time: float = -0.0  # Negative zero to show that it never ran.
 
-  def _aocd_submit(self, result: str) -> Optional[str]:
+  def _aocd_submit(self, result: str) -> str | None:
     """Submit a result to adventofcode.com and return the answer."""
     # pylint: disable-next=import-error disable-next=import-outside-toplevel
-    import aocd  # type:ignore
+    import aocd
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
     if self.part == 1:
       puz.answer_a = result  # Submit.
@@ -87,7 +88,7 @@ class PuzzlePart:
 @dataclasses.dataclass
 class Puzzle:
   """Daily puzzle consisting of an input and two problems to solve."""
-  advent: 'Advent' = dataclasses.field(repr=False)
+  advent: Advent = dataclasses.field(repr=False)
   day: int
   input: str = ''
   parts: Dict[int, PuzzlePart] = dataclasses.field(default_factory=dict)  # 1..2
@@ -145,7 +146,7 @@ class Puzzle:
     IPython.display.display(IPython.display.Markdown(
         f'The stored answers are: `{answers}`'))
 
-  def verify(self, part: int, func: Callable[[str], Union[str, int]],
+  def verify(self, part: int, func: Callable[[str], str | int],
              repeat: int = 1) -> None:
     """Runs `func` on the puzzle input and check the answer for the part."""
     puzzle_part = self.parts[part]
