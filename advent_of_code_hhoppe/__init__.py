@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 __docformat__ = 'google'
-__version__ = '0.6.0'
+__version__ = '0.6.1'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -11,6 +11,7 @@ import contextlib
 import dataclasses
 import numbers
 import pathlib
+import re
 import sys
 import time
 from typing import Any
@@ -150,6 +151,15 @@ class Puzzle:
   def verify(self, part: int, func: Callable[[str], str | int],
              repeat: int = 1) -> None:
     """Runs `func` on the puzzle input and check the answer for the part."""
+    func2: Any = getattr(func, 'func', func)  # For `functools.partial`.
+    func_name: str | None = getattr(func2, '__name__', None)
+    if func_name:
+      match = re.match(r'day(\d+)', func_name)
+      if match:
+        func_day = int(match.group(1))
+        if func_day != self.day:
+          raise ValueError(
+              f'Function {func_name} looks incompatible for day {self.day}.')
     puzzle_part = self.parts[part]
     puzzle_part.func = func
     puzzle_part.compute(self.input, repeat=repeat)
