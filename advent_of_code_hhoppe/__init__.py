@@ -128,7 +128,8 @@ class Puzzle:
           puzzle_part.answer = puz.answer_a
         if part == 2 and puz.answered_b:
           puzzle_part.answer = puz.answer_b
-    self.print_summary()
+    if IPython.get_ipython():
+      self.print_summary()
 
   def print_summary(self) -> None:
     """Shows the puzzle input (possibly abbreviated) and any stored answers."""
