@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 __docformat__ = 'google'
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -114,8 +114,7 @@ class Puzzle:
       puzzle_part = self.parts[part] = PuzzlePart(self.advent, self.day, part)
       if self.advent.answer_url:
         url = self.advent.answer_url.format(
-            year=self.advent.year, day=self.day, part=part,
-            part_letter='ab'[part - 1])
+            year=self.advent.year, day=self.day, part=part, part_letter='ab'[part - 1])
         try:
           puzzle_part.answer = _read_contents(url).decode()
         except (urllib.error.HTTPError, FileNotFoundError):
@@ -146,11 +145,9 @@ class Puzzle:
     lines2 = lines[:8] + [' ...'] + lines[-4:] if len(lines) > 13 else lines
     print('\n'.join(lines2))
     answers = {part: self.parts[part].answer for part in (1, 2)}
-    IPython.display.display(IPython.display.Markdown(
-        f'The stored answers are: `{answers}`'))
+    IPython.display.display(IPython.display.Markdown(f'The stored answers are: `{answers}`'))
 
-  def verify(self, part: int, func: Callable[[str], str | int],
-             repeat: int = 1) -> None:
+  def verify(self, part: int, func: Callable[[str], str | int], repeat: int = 1) -> None:
     """Runs `func` on the puzzle input and check the answer for the part."""
     func2: Any = getattr(func, 'func', func)  # For `functools.partial`.
     func_name: str | None = getattr(func2, '__name__', None)
@@ -159,8 +156,7 @@ class Puzzle:
       if match:
         func_day = int(match.group(1))
         if func_day != self.day:
-          raise ValueError(
-              f'Function {func_name} looks incompatible for day {self.day}.')
+          raise ValueError(f'Function {func_name} looks incompatible for day {self.day}.')
     puzzle_part = self.parts[part]
     puzzle_part.func = func
     puzzle_part.compute(self.input, repeat=repeat)
@@ -204,5 +200,5 @@ class Advent:
 
 
 # Local Variables:
-# fill-column: 80
+# fill-column: 100
 # End:
