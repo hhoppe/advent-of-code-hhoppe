@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 __docformat__ = 'google'
-__version__ = '0.6.2'
+__version__ = '0.7.0'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -133,13 +133,13 @@ class Puzzle:
   def print_summary(self) -> None:
     """Shows the puzzle input (possibly abbreviated) and any stored answers."""
     lines = [(line[:80] + ' ... ' + line[-35:] if len(line) > 120 else line)
-             for line in self.input.strip('\n').split('\n')]
+             for line in self.input.splitlines()]
     url = f'https://adventofcode.com/{self.advent.year}/day/{self.day}'
     s = f'For [day {self.day}]({url}), `puzzle.input` has '
     if len(lines) != 1:
       s += f'{len(lines):_} lines:'
     else:
-      line = self.input.strip('\n')
+      line = self.input.rstrip('\n')
       s += f'a single line of {len(line):_} characters:'
     IPython.display.display(IPython.display.Markdown(s))
     lines2 = lines[:8] + [' ...'] + lines[-4:] if len(lines) > 13 else lines

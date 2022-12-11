@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- fill-column: 100; -*-
+"""Tests for advent_of_code_hhoppe module."""
+
 import advent_of_code_hhoppe
 
 PROFILE = 'google.Hugues_Hoppe.965276'
@@ -5,6 +9,7 @@ INPUT_URL = f'https://github.com/hhoppe/advent_of_code_{{year}}/raw/main/data/{P
 ANSWER_URL = f'https://github.com/hhoppe/advent_of_code_{{year}}/raw/main/data/{PROFILE}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
 
 def test_creation() -> None:
+  """Test creation of Advent object."""
   advent = advent_of_code_hhoppe.Advent(year=2020, input_url=INPUT_URL, answer_url=ANSWER_URL)
   puzzle = advent.puzzle(day=1)
   assert len(puzzle.input) > 100
