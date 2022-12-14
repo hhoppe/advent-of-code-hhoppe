@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 __docformat__ = 'google'
-__version__ = '0.7.0'
+__version__ = '0.8.0'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -22,7 +22,7 @@ import urllib.request
 import IPython
 
 
-def _read_contents(path_or_url: str) -> bytes:
+def _read_contents(path_or_url: str, /) -> bytes:
   if path_or_url.startswith(('http://', 'https://')):
     with urllib.request.urlopen(path_or_url) as response:
       data: bytes = response.read()
@@ -43,8 +43,7 @@ class PuzzlePart:
 
   def _aocd_submit(self, result: str) -> str | None:
     """Submit a result to adventofcode.com and return the answer."""
-    # pylint: disable-next=import-error disable-next=import-outside-toplevel
-    import aocd
+    import aocd  # pylint: disable=import-error disable=import-outside-toplevel
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
     if self.part == 1:
       puz.answer_a = result  # Submit.
@@ -58,7 +57,7 @@ class PuzzlePart:
       raise AssertionError()
     return None
 
-  def compute(self, input_: str, silent: bool = False, repeat: int = 1) -> None:
+  def compute(self, input_: str, /, *, silent: bool = False, repeat: int = 1) -> None:
     """Run the stored function on the selected input."""
     assert self.func
     elapsed_times = []
@@ -104,8 +103,7 @@ class Puzzle:
       except (urllib.error.HTTPError, FileNotFoundError):
         pass
     if not self.input and self.advent.use_aocd:
-      # pylint: disable-next=import-error disable-next=import-outside-toplevel
-      import aocd
+      import aocd  # pylint: disable=import-error disable=import-outside-toplevel
       puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
       self.input = puz.input_data
     if not self.input:
@@ -120,8 +118,7 @@ class Puzzle:
         except (urllib.error.HTTPError, FileNotFoundError):
           pass
       if puzzle_part.answer is None and self.advent.use_aocd:
-        # pylint: disable-next=import-error disable-next=import-outside-toplevel
-        import aocd
+        import aocd  # pylint: disable=import-error disable=import-outside-toplevel
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
           puzzle_part.answer = puz.answer_a
@@ -147,13 +144,12 @@ class Puzzle:
     answers = {part: self.parts[part].answer for part in (1, 2)}
     IPython.display.display(IPython.display.Markdown(f'The stored answers are: `{answers}`'))
 
-  def verify(self, part: int, func: Callable[[str], str | int], repeat: int = 1) -> None:
+  def verify(self, part: int, func: Callable[[str], str | int], /, *, repeat: int = 1) -> None:
     """Runs `func` on the puzzle input and check the answer for the part."""
     func2: Any = getattr(func, 'func', func)  # For `functools.partial`.
     func_name: str | None = getattr(func2, '__name__', None)
     if func_name:
-      match = re.match(r'day(\d+)', func_name)
-      if match:
+      if match := re.match(r'day(\d+)', func_name):
         func_day = int(match.group(1))
         if func_day != self.day:
           raise ValueError(f'Function {func_name} looks incompatible for day {self.day}.')
@@ -178,7 +174,7 @@ class Advent:
     """Obtain a daily puzzle."""
     return Puzzle(self, *args, **kwargs)
 
-  def show_times(self, recompute: bool = False, repeat: int = 1) -> None:
+  def show_times(self, *, recompute: bool = False, repeat: int = 1) -> None:
     """Prints the execution times of all puzzle parts."""
     if recompute and repeat > 1:
       print(f'(Computing min times over {repeat} calls.)')
