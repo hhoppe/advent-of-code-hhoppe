@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 __docformat__ = 'google'
-__version__ = '0.8.1'
+__version__ = '0.8.2'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -43,7 +43,7 @@ class PuzzlePart:
 
   def _aocd_submit(self, result: str) -> str | None:
     """Submit a result to adventofcode.com and return the answer."""
-    import aocd  # pylint: disable=import-error disable=import-outside-toplevel
+    import aocd  # pylint: disable=import-error, import-outside-toplevel
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
     if self.part == 1:
       puz.answer_a = result  # Submit.
@@ -98,12 +98,10 @@ class Puzzle:
     self.advent.puzzles[self.day] = self
     if not self.input and self.advent.input_url:
       url = self.advent.input_url.format(year=self.advent.year, day=self.day)
-      try:
+      with contextlib.suppress(urllib.error.HTTPError, FileNotFoundError):
         self.input = _read_contents(url).decode()
-      except (urllib.error.HTTPError, FileNotFoundError):
-        pass
     if not self.input and self.advent.use_aocd:
-      import aocd  # pylint: disable=import-error disable=import-outside-toplevel
+      import aocd  # pylint: disable=import-error, import-outside-toplevel
       puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
       self.input = puz.input_data
     if not self.input:
@@ -113,12 +111,10 @@ class Puzzle:
       if self.advent.answer_url:
         url = self.advent.answer_url.format(
             year=self.advent.year, day=self.day, part=part, part_letter='ab'[part - 1])
-        try:
+        with contextlib.suppress(urllib.error.HTTPError, FileNotFoundError):
           puzzle_part.answer = _read_contents(url).decode()
-        except (urllib.error.HTTPError, FileNotFoundError):
-          pass
       if puzzle_part.answer is None and self.advent.use_aocd:
-        import aocd  # pylint: disable=import-error disable=import-outside-toplevel
+        import aocd  # pylint: disable=import-error, import-outside-toplevel
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
           puzzle_part.answer = puz.answer_a
