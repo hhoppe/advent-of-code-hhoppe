@@ -4,7 +4,7 @@
 
 import advent_of_code_hhoppe
 
-BASE_URL = ''https://github.com/hhoppe/advent-of-code-hhoppe/raw/main/testdata'
+BASE_URL = 'https://github.com/hhoppe/advent-of-code-hhoppe/raw/main/testdata'
 INPUT_URL = f'{BASE_URL}/{{year}}_{{day:02d}}_input.txt'
 ANSWER_URL = f'{BASE_URL}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
 
