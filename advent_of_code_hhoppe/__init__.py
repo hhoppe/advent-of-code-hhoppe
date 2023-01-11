@@ -2,8 +2,9 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 from __future__ import annotations
+
 __docformat__ = 'google'
-__version__ = '0.8.2'
+__version__ = '0.8.3'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -20,6 +21,7 @@ import urllib.error
 import urllib.request
 
 import IPython
+import IPython.display
 
 
 def _read_contents(path_or_url: str, /) -> bytes:
@@ -34,6 +36,7 @@ def _read_contents(path_or_url: str, /) -> bytes:
 @dataclasses.dataclass
 class PuzzlePart:
   """Part (1 or 2) of a daily puzzle."""
+
   advent: Advent = dataclasses.field(repr=False)
   day: int
   part: int
@@ -44,6 +47,7 @@ class PuzzlePart:
   def _aocd_submit(self, result: str) -> str | None:
     """Submit a result to adventofcode.com and return the answer."""
     import aocd  # pylint: disable=import-error, import-outside-toplevel
+
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
     if self.part == 1:
       puz.answer_a = result  # Submit.
@@ -89,6 +93,7 @@ class PuzzlePart:
 @dataclasses.dataclass
 class Puzzle:
   """Daily puzzle consisting of an input and two problems to solve."""
+
   advent: Advent = dataclasses.field(repr=False)
   day: int
   input: str = ''
@@ -102,6 +107,7 @@ class Puzzle:
         self.input = _read_contents(url).decode()
     if not self.input and self.advent.use_aocd:
       import aocd  # pylint: disable=import-error, import-outside-toplevel
+
       puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
       self.input = puz.input_data
     if not self.input:
@@ -110,23 +116,31 @@ class Puzzle:
       puzzle_part = self.parts[part] = PuzzlePart(self.advent, self.day, part)
       if self.advent.answer_url:
         url = self.advent.answer_url.format(
-            year=self.advent.year, day=self.day, part=part, part_letter='ab'[part - 1])
+            year=self.advent.year, day=self.day, part=part, part_letter='ab'[part - 1]
+        )
         with contextlib.suppress(urllib.error.HTTPError, FileNotFoundError):
           puzzle_part.answer = _read_contents(url).decode()
       if puzzle_part.answer is None and self.advent.use_aocd:
         import aocd  # pylint: disable=import-error, import-outside-toplevel
+
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
           puzzle_part.answer = puz.answer_a
         if part == 2 and puz.answered_b:
           puzzle_part.answer = puz.answer_b
-    if IPython.get_ipython():
+    if IPython.get_ipython():  # type: ignore
       self.print_summary()
 
   def print_summary(self) -> None:
     """Shows the puzzle input (possibly abbreviated) and any stored answers."""
-    lines = [(line[:80] + ' ... ' + line[-35:] if len(line) > 120 else line)
-             for line in self.input.splitlines()]
+
+    def display_markdown(text: str) -> None:
+      IPython.display.display(IPython.display.Markdown(text))  # type: ignore
+
+    lines = [
+        (line[:80] + ' ... ' + line[-35:] if len(line) > 120 else line)
+        for line in self.input.splitlines()
+    ]
     url = f'https://adventofcode.com/{self.advent.year}/day/{self.day}'
     s = f'For [day {self.day}]({url}), `puzzle.input` has '
     if len(lines) != 1:
@@ -134,11 +148,11 @@ class Puzzle:
     else:
       line = self.input.rstrip('\n')
       s += f'a single line of {len(line):_} characters:'
-    IPython.display.display(IPython.display.Markdown(s))
+    display_markdown(s)
     lines2 = lines[:8] + [' ...'] + lines[-4:] if len(lines) > 13 else lines
     print('\n'.join(lines2))
     answers = {part: self.parts[part].answer for part in (1, 2)}
-    IPython.display.display(IPython.display.Markdown(f'The stored answers are: `{answers}`'))
+    display_markdown(f'The stored answers are: `{answers}`')
 
   def verify(self, part: int, func: Callable[[str], str | int], /, *, repeat: int = 1) -> None:
     """Runs `func` on the puzzle input and check the answer for the part."""
@@ -157,14 +171,16 @@ class Puzzle:
 @dataclasses.dataclass
 class Advent:
   """Annual advent-of-code consisting of 25 daily puzzles."""
+
   year: int
   input_url: str = ''
   answer_url: str = ''
   puzzles: dict[int, Puzzle] = dataclasses.field(default_factory=dict)  # [day]
 
   def __post_init__(self) -> None:
-    self.use_aocd = ('aocd' in sys.modules and
-                     pathlib.Path('~/.config/aocd/token').expanduser().exists())
+    self.use_aocd = (
+        'aocd' in sys.modules and pathlib.Path('~/.config/aocd/token').expanduser().exists()
+    )
 
   def puzzle(self, *args: Any, **kwargs: Any) -> Puzzle:
     """Obtain a daily puzzle."""
