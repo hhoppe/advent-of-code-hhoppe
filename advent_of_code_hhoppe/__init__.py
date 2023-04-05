@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 __docformat__ = 'google'
-__version__ = '0.8.3'
+__version__ = '1.0.0'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -46,17 +46,20 @@ class PuzzlePart:
 
   def _aocd_submit(self, result: str) -> str | None:
     """Submit a result to adventofcode.com and return the answer."""
+    # Using https://github.com/wimglenn/advent-of-code-data.
     import aocd  # pylint: disable=import-error, import-outside-toplevel
 
+    # Could set: quiet=True.
+    aocd.submit(result, year=self.advent.year, day=self.day, part=self.part, reopen=False)
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
     if self.part == 1:
-      puz.answer_a = result  # Submit.
       if puz.answered_a:
-        return puz.answer_a
+        answer: str = puz.answer_a
+        return answer
     elif self.part == 2:
-      puz.answer_b = result
       if puz.answered_b:
-        return puz.answer_b
+        answer = puz.answer_b
+        return answer
     else:
       raise AssertionError()
     return None
