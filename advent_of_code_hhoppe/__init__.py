@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 __docformat__ = 'google'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -113,6 +113,8 @@ class Puzzle:
 
       puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
       self.input = puz.input_data
+      if not self.input.endswith('\n'):
+        self.input += '\n'
     if not self.input:
       raise ValueError('The puzzle input cannot be determined.')
     for part in (1, 2):
