@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 __docformat__ = 'google'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -29,8 +29,7 @@ def _read_contents(path_or_url: str, /) -> bytes:
     with urllib.request.urlopen(path_or_url) as response:
       data: bytes = response.read()
     return data
-  with open(path_or_url, 'rb') as f:
-    return f.read()
+  return pathlib.Path(path_or_url).read_bytes()
 
 
 @dataclasses.dataclass
@@ -61,7 +60,7 @@ class PuzzlePart:
         answer = puz.answer_b
         return answer
     else:
-      raise AssertionError()
+      raise ValueError(self.part)
     return None
 
   def compute(self, input_: str, /, *, silent: bool = False, repeat: int = 1) -> None:
