@@ -4,22 +4,25 @@
 from __future__ import annotations
 
 __docformat__ = 'google'
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
 import contextlib
 import dataclasses
+import io
 import numbers
 import pathlib
 import re
 import sys
+import tarfile
 import time
 from typing import Any
 import unittest.mock
 import urllib.error
 import urllib.request
 
+import aocd  # https://github.com/wimglenn/advent-of-code-data
 import IPython
 import IPython.display
 
@@ -45,9 +48,6 @@ class PuzzlePart:
 
   def _aocd_submit(self, result: str) -> str | None:
     """Submit a result to adventofcode.com and return the answer."""
-    # Using https://github.com/wimglenn/advent-of-code-data.
-    import aocd  # pylint: disable=import-error, import-outside-toplevel
-
     # Could set: quiet=True.
     aocd.submit(result, year=self.advent.year, day=self.day, part=self.part, reopen=False)
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
@@ -108,8 +108,6 @@ class Puzzle:
       with contextlib.suppress(urllib.error.HTTPError, FileNotFoundError):
         self.input = _read_contents(url).decode()
     if not self.input and self.advent.use_aocd:
-      import aocd  # pylint: disable=import-error, import-outside-toplevel
-
       puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
       self.input = puz.input_data
       if not self.input.endswith('\n'):
@@ -125,8 +123,6 @@ class Puzzle:
         with contextlib.suppress(urllib.error.HTTPError, FileNotFoundError):
           puzzle_part.answer = _read_contents(url).decode()
       if puzzle_part.answer is None and self.advent.use_aocd:
-        import aocd  # pylint: disable=import-error, import-outside-toplevel
-
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
           puzzle_part.answer = puz.answer_a
@@ -177,14 +173,28 @@ class Advent:
   """Annual advent-of-code consisting of 25 daily puzzles."""
 
   year: int
+  tar_url: str = ''
   input_url: str = ''
   answer_url: str = ''
   puzzles: dict[int, Puzzle] = dataclasses.field(default_factory=dict)  # [day]
 
   def __post_init__(self) -> None:
-    self.use_aocd = (
-        'aocd' in sys.modules and pathlib.Path('~/.config/aocd/token').expanduser().exists()
-    )
+    if self.tar_url:
+      assert not self.input_url and not self.answer_url
+      data_dir = pathlib.Path('./data')
+      if not data_dir.is_dir():
+        data_dir.mkdir()
+      if match := re.search(r'([^/]+)\.tar\.gz$', self.tar_url):
+        data_name = match.group(1)
+      else:
+        raise ValueError(f'{self.tar_url=} must have suffix .tar.gz')
+      if not (data_dir / data_name).is_dir():
+        with tarfile.open(fileobj=io.BytesIO(_read_contents(self.tar_url)), mode='r:gz') as tf:
+          tf.extractall(path=data_dir)  # Python 3.11.4: use filter='data' for security.
+      self.input_url = f'{data_dir}/{data_name}/{{year}}_{{day:02d}}_input.txt'
+      self.answer_url = f'{data_dir}/{data_name}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
+
+    self.use_aocd = pathlib.Path('~/.config/aocd/token').expanduser().exists()
 
   def puzzle(self, *args: Any, **kwargs: Any) -> Puzzle:
     """Obtain a daily puzzle."""
