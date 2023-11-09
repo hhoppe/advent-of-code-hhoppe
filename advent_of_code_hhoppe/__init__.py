@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 __docformat__ = 'google'
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -14,7 +14,6 @@ import io
 import numbers
 import pathlib
 import re
-import sys
 import tarfile
 import time
 from typing import Any
@@ -177,6 +176,7 @@ class Advent:
   input_url: str = ''
   answer_url: str = ''
   puzzles: dict[int, Puzzle] = dataclasses.field(default_factory=dict)  # [day]
+  use_aocd: bool = False
 
   def __post_init__(self) -> None:
     if self.tar_url:
