@@ -4,12 +4,13 @@
 from __future__ import annotations
 
 __docformat__ = 'google'
-__version__ = '1.0.5'
+__version__ = '1.0.6'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
 import contextlib
 import dataclasses
+import gc
 import io
 import numbers
 import pathlib
@@ -71,12 +72,19 @@ class PuzzlePart:
         if silent:
           for f in ('sys.stdout', 'sys.stderr', 'IPython.display.display'):
             stack.enter_context(unittest.mock.patch(f))
-        start_time = time.monotonic()
-        raw_result = self.func(input_)
+        gc_was_enabled = gc.isenabled()
+        try:
+          gc.disable()
+          gc.collect()
+          start_time = time.monotonic()
+          raw_result = self.func(input_)
+          elapsed_times.append(time.monotonic() - start_time)
+        finally:
+          if gc_was_enabled:
+            gc.enable()
         if not isinstance(raw_result, (str, numbers.Integral)):
           raise ValueError(f'Result {raw_result!r} is not type `str` or `int`.')
         result = str(raw_result)
-        elapsed_times.append(time.monotonic() - start_time)
       if self.answer is not None:
         if result != self.answer:
           raise ValueError(f'Result {result!r} != expected {self.answer!r}')
