@@ -27,7 +27,7 @@ repository = "https://github.com/hhoppe/advent-of-code-hhoppe"
 # Other: `documentation`, `changelog`
 
 [project.optional-dependencies]
-# Development deps (unittest, linting, formating,...)
+# Development deps (unittest, linting, formatting,...)
 # Installed through `pip install .[dev]`
 dev = [
     # "pytest",
