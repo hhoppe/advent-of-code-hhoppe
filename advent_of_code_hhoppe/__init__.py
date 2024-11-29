@@ -17,7 +17,7 @@ import pathlib
 import re
 import tarfile
 import time
-from typing import Any
+from typing import Any, Literal
 import unittest.mock
 import urllib.error
 import urllib.request
@@ -48,8 +48,10 @@ class PuzzlePart:
 
   def _aocd_submit(self, result: str) -> str | None:
     """Submit a result to adventofcode.com and return the answer."""
+    assert 1 <= self.part <= 2
+    literal_part: Literal['a', 'b'] = 'a' if self.part == 1 else 'b'
     # Could set: quiet=True.
-    aocd.submit(result, year=self.advent.year, day=self.day, part=self.part, reopen=False)
+    aocd.submit(result, year=self.advent.year, day=self.day, part=literal_part, reopen=False)
     puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
     if self.part == 1:
       if puz.answered_a:
