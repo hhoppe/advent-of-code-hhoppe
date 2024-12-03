@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 __docformat__ = 'google'
-__version__ = '1.0.6'
+__version__ = '1.0.7'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -169,7 +169,7 @@ class Puzzle:
     func_name: str | None = getattr(func2, '__name__', None)
     if func_name:
       if match := re.match(r'day(\d+)', func_name):
-        func_day = int(match.group(1))
+        func_day = int(match[1])
         if func_day != self.day:
           raise ValueError(f'Function {func_name} looks incompatible for day {self.day}.')
     puzzle_part = self.parts[part]
@@ -195,7 +195,7 @@ class Advent:
       if not data_dir.is_dir():
         data_dir.mkdir()
       if match := re.search(r'([^/]+)\.tar\.gz$', self.tar_url):
-        data_name = match.group(1)
+        data_name = match[1]
       else:
         raise ValueError(f'{self.tar_url=} must have suffix .tar.gz')
       if not (data_dir / data_name).is_dir():
