@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Library for Advent of Code -- Hugues Hoppe."""
 
-from __future__ import annotations
-
 __docformat__ = 'google'
-__version__ = '1.0.7'
+__version__ = '1.0.8'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -39,7 +37,7 @@ def _read_contents(path_or_url: str, /) -> bytes:
 class PuzzlePart:
   """Part (1 or 2) of a daily puzzle."""
 
-  advent: Advent = dataclasses.field(repr=False)
+  advent: 'Advent' = dataclasses.field(repr=False)
   day: int
   part: int
   answer: str | None = None
@@ -105,7 +103,7 @@ class PuzzlePart:
 class Puzzle:
   """Daily puzzle consisting of an input and two problems to solve."""
 
-  advent: Advent = dataclasses.field(repr=False)
+  advent: 'Advent' = dataclasses.field(repr=False)
   day: int
   input: str = ''
   parts: dict[int, PuzzlePart] = dataclasses.field(default_factory=dict)  # 1..2
@@ -115,7 +113,7 @@ class Puzzle:
     if not self.input and self.advent.input_url:
       url = self.advent.input_url.format(year=self.advent.year, day=self.day)
       with contextlib.suppress(urllib.error.HTTPError, FileNotFoundError):
-        self.input = _read_contents(url).decode()
+        self.input = _read_contents(url).decode('utf-8')
     if not self.input and self.advent.use_aocd:
       puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
       self.input = puz.input_data
@@ -130,7 +128,7 @@ class Puzzle:
             year=self.advent.year, day=self.day, part=part, part_letter='ab'[part - 1]
         )
         with contextlib.suppress(urllib.error.HTTPError, FileNotFoundError):
-          puzzle_part.answer = _read_contents(url).decode()
+          puzzle_part.answer = _read_contents(url).decode('utf-8')
       if puzzle_part.answer is None and self.advent.use_aocd:
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
