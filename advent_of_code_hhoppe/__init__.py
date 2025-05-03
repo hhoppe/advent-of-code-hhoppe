@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '1.0.8'
+__version__ = '1.1.0'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -184,7 +184,7 @@ class Advent:
   input_url: str = ''
   answer_url: str = ''
   puzzles: dict[int, Puzzle] = dataclasses.field(default_factory=dict)  # [day]
-  use_aocd: bool = False
+  use_aocd: bool | None = None
 
   def __post_init__(self) -> None:
     if self.tar_url:
@@ -202,7 +202,8 @@ class Advent:
       self.input_url = f'{data_dir}/{data_name}/{{year}}_{{day:02d}}_input.txt'
       self.answer_url = f'{data_dir}/{data_name}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
 
-    self.use_aocd = pathlib.Path('~/.config/aocd/token').expanduser().exists()
+    if self.use_aocd is None:
+      self.use_aocd = pathlib.Path('~/.config/aocd/token').expanduser().exists()
 
   def puzzle(self, *args: Any, **kwargs: Any) -> Puzzle:
     """Obtain a daily puzzle."""
