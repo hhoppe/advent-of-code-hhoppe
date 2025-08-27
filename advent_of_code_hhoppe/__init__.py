@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -27,7 +27,8 @@ import IPython.display
 
 def _read_contents(path_or_url: str, /) -> bytes:
   if path_or_url.startswith(('http://', 'https://')):
-    with urllib.request.urlopen(path_or_url) as response:
+    request = urllib.request.Request(path_or_url, headers={'User-Agent': 'Chrome'})
+    with urllib.request.urlopen(request) as response:
       data: bytes = response.read()
     return data
   return pathlib.Path(path_or_url).read_bytes()
