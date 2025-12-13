@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 from collections.abc import Callable
@@ -134,7 +134,8 @@ class Puzzle:
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
           puzzle_part.answer = puz.answer_a
-        if part == 2 and puz.answered_b:
+        avoid_bug = self.advent.year < 2025 or self.day < 12
+        if part == 2 and avoid_bug and puz.answered_b:
           puzzle_part.answer = puz.answer_b
     if IPython.get_ipython():  # type: ignore
       self.print_summary()
@@ -178,7 +179,7 @@ class Puzzle:
 
 @dataclasses.dataclass
 class Advent:
-  """Annual advent-of-code consisting of 25 daily puzzles."""
+  """Annual advent-of-code consisting of 12 or 25 daily puzzles."""
 
   year: int
   tar_url: str = ''
