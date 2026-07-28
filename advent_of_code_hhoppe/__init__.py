@@ -2,10 +2,9 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
-from collections.abc import Callable
 import contextlib
 import dataclasses
 import gc
@@ -15,10 +14,11 @@ import pathlib
 import re
 import tarfile
 import time
-from typing import Any, Literal
 import unittest.mock
 import urllib.error
 import urllib.request
+from collections.abc import Callable
+from typing import Any, Literal
 
 import aocd  # https://github.com/wimglenn/advent-of-code-data
 import IPython
@@ -85,7 +85,7 @@ class PuzzlePart:
             gc.enable()
         if not isinstance(raw_result, (str, numbers.Integral)):
           raise ValueError(f'Result {raw_result!r} is not type `str` or `int`.')
-        result = str(raw_result)
+        result = str(raw_result)  # pyrefly: ignore[unnecessary-type-conversion]
       if self.answer is not None:
         if result != self.answer:
           raise ValueError(f'Result {result!r} != expected {self.answer!r}')
@@ -167,11 +167,10 @@ class Puzzle:
     """Runs `func` on the puzzle input and check the answer for the part."""
     func2: Any = getattr(func, 'func', func)  # For `functools.partial`.
     func_name: str | None = getattr(func2, '__name__', None)
-    if func_name:
-      if match := re.match(r'day(\d+)', func_name):
-        func_day = int(match[1])
-        if func_day != self.day:
-          raise ValueError(f'Function {func_name} looks incompatible for day {self.day}.')
+    if func_name and (match := re.match(r'day(\d+)', func_name)):
+      func_day = int(match[1])
+      if func_day != self.day:
+        raise ValueError(f'Function {func_name} looks incompatible for day {self.day}.')
     puzzle_part = self.parts[part]
     puzzle_part.func = func
     puzzle_part.compute(self.input, repeat=repeat)
