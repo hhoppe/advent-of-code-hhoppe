@@ -41,15 +41,16 @@ build-backend = "flit_core.buildapi"
 
 [tool.autopep8]
 indent_size = 2
-ignore = "E121,E125,E126,E129,E226,E302,E305,E501,W504,E741,E20,W503,E731"
-exclude = "*.ipynb_checkpoints"
+ignore = "E111,E114,E121,E125,E126,E129,E226,E302,E305,E501,W504,E741,E20,W503,E731"
 aggressive = 3
 recursive = true
+exclude = "*.ipynb_checkpoints"
 
 [tool.mypy]
 cache_dir = "~/.cache/mypy"
 ignore_missing_imports = true
 strict = true
+files = ["."]
 
 [tool.pyink]
 pyink-indentation = 2
@@ -82,6 +83,10 @@ project-excludes = ["*.ipynb"]
 
 [tool.pytest.ini_options]
 addopts = "--ignore-glob '*.#*' --doctest-modules"
+
+[tool.pytype]
+keep_going = true
+inputs = ["."]
 
 [tool.ruff]
 extend-exclude = ["*.ipynb"]
