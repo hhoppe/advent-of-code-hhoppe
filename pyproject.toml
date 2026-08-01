@@ -68,7 +68,7 @@ disable = [
 reports = false
 score = false
 recursive = true
-ignore-paths = [".*ipynb_checkpoints", "^.pytype", ".*/.pytype"]
+ignore-paths = [".*ipynb_checkpoints"]
 
 [tool.pylint.basic]
 good-names-rgxs = "^[a-z][a-z0-9]?|[A-Z]([A-Z_]*[A-Z])?$"
@@ -83,10 +83,6 @@ project-excludes = ["*.ipynb"]
 
 [tool.pytest.ini_options]
 addopts = "--ignore-glob '*.#*' --doctest-modules"
-
-[tool.pytype]
-keep_going = true
-inputs = ["."]
 
 [tool.ruff]
 extend-exclude = ["*.ipynb"]
