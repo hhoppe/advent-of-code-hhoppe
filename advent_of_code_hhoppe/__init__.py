@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '1.1.3'
+__version__ = '1.1.4'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
@@ -42,7 +42,7 @@ class PuzzlePart:
   day: int
   part: int
   answer: str | None = None
-  func: Callable[[str], str | int] | None = None
+  func: Callable[[str], Any] | None = None
   elapsed_time: float = -0.0  # Negative zero to show that it never ran.
 
   def _aocd_submit(self, result: str) -> str | None:
@@ -163,7 +163,7 @@ class Puzzle:
     answers = {part: self.parts[part].answer for part in (1, 2)}
     display_markdown(f'The stored answers are: `{answers}`')
 
-  def verify(self, part: int, func: Callable[[str], str | int], /, *, repeat: int = 1) -> None:
+  def verify(self, part: int, func: Callable[[str], Any], /, *, repeat: int = 1) -> None:
     """Runs `func` on the puzzle input and check the answer for the part."""
     func2: Any = getattr(func, 'func', func)  # For `functools.partial`.
     func_name: str | None = getattr(func2, '__name__', None)
