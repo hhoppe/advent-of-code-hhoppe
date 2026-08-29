@@ -137,7 +137,7 @@ class Puzzle:
         avoid_bug = self.advent.year < 2025 or self.day < 12
         if part == 2 and avoid_bug and puz.answered_b:
           puzzle_part.answer = puz.answer_b
-    if IPython.get_ipython():  # type: ignore
+    if IPython.get_ipython():  # type: ignore[attr-defined, no-untyped-call, unused-ignore]  # Needed on Windows.
       self.print_summary()
 
   def print_summary(self) -> None:
