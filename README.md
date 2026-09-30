@@ -2,6 +2,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/hhoppe/advent-of-code-hhoppe/main.yml?branch=main&label=CI)](https://github.com/hhoppe/advent-of-code-hhoppe/actions/workflows/main.yml)
 [![PyPI](https://img.shields.io/pypi/v/advent-of-code-hhoppe)](https://pypi.org/project/advent-of-code-hhoppe/)
+[![Python](https://img.shields.io/pypi/pyversions/advent-of-code-hhoppe)](https://pypi.org/project/advent-of-code-hhoppe/)
 [![License](https://img.shields.io/github/license/hhoppe/advent-of-code-hhoppe)](https://github.com/hhoppe/advent-of-code-hhoppe/blob/main/LICENSE)
 
 Python library to process Advent-of-Code puzzles in a Jupyter notebook.
