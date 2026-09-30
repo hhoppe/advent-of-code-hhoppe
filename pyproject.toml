@@ -13,9 +13,11 @@ classifiers = [
 keywords = []
 
 # pip dependencies of the project
+# The lower bounds are the oldest versions that pass the tests under Python 3.10; CI tests them.
+# (Older advent-of-code-data imports pkg_resources without declaring a dependency on setuptools.)
 dependencies = [
-    "advent-of-code-data",
-    "IPython",
+    "advent-of-code-data>=2.0.0",
+    "IPython>=5.0",
 ]
 
 # This is set automatically by flit using `*.__version__`
