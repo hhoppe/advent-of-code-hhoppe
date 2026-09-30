@@ -26,13 +26,12 @@ homepage = "https://github.com/hhoppe/advent-of-code-hhoppe"
 repository = "https://github.com/hhoppe/advent-of-code-hhoppe"
 # Other: `documentation`, `changelog`
 
-[project.optional-dependencies]
-# Development deps (unittest, linting, formatting,...)
-# Installed through `pip install .[dev]`
-dev = [
-    # "pytest",
-    # "pytest-xdist",
-    # "pylint>=2.6.0",
+# Development requirements (PEP 735), which are not part of the published package metadata.
+# CI installs them with `pip install . --group test` or `pip install . --group lint`.
+[dependency-groups]
+test = ["pytest"]
+lint = [
+    "mypy", "pyink", "pylint", "pyrefly", "ruff",
 ]
 
 [build-system]
