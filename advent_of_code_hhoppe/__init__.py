@@ -2,7 +2,7 @@
 """Library for Advent of Code -- Hugues Hoppe."""
 
 __docformat__ = 'google'
-__version__ = '1.1.6'
+__version__ = '1.1.7'
 __version_info__ = tuple(int(num) for num in __version__.split('.'))
 
 import contextlib
@@ -45,8 +45,8 @@ class PuzzlePart:
   func: Callable[[str], Any] | None = None
   elapsed_time: float = -0.0  # Negative zero to show that it never ran.
 
-  def _aocd_submit(self, result: str) -> str | None:
-    """Submit a result to adventofcode.com and return the answer."""
+  def _aocd_submit(self, result: str) -> str:
+    """Submit a result to adventofcode.com and return the answer (if it is accepted)."""
     assert 1 <= self.part <= 2
     literal_part: Literal['a', 'b'] = 'a' if self.part == 1 else 'b'
     # Could set: quiet=True.
@@ -56,17 +56,15 @@ class PuzzlePart:
       if puz.answered_a:
         answer: str = puz.answer_a
         return answer
-    elif self.part == 2:
-      if puz.answered_b:
-        answer = puz.answer_b
-        return answer
-    else:
-      raise ValueError(self.part)
-    return None
+    elif puz.answered_b:
+      answer = puz.answer_b
+      return answer
+    raise ValueError(f'Result {result!r} was not accepted by adventofcode.com.')
 
   def compute(self, input_: str, /, *, silent: bool = False, repeat: int = 1) -> None:
     """Run the stored function on the selected input."""
     assert self.func
+    assert repeat >= 1, repeat
     elapsed_times = []
     for _ in range(repeat):
       with contextlib.ExitStack() as stack:
@@ -83,7 +81,7 @@ class PuzzlePart:
         finally:
           if gc_was_enabled:
             gc.enable()
-        if not isinstance(raw_result, (str, numbers.Integral)):
+        if isinstance(raw_result, bool) or not isinstance(raw_result, (str, numbers.Integral)):
           raise ValueError(f'Result {raw_result!r} is not type `str` or `int`.')
         result = str(raw_result)  # pyrefly: ignore[unnecessary-type-conversion]
       if self.answer is not None:
@@ -129,19 +127,19 @@ class Puzzle:
             year=self.advent.year, day=self.day, part=part, part_letter='ab'[part - 1]
         )
         with contextlib.suppress(urllib.error.HTTPError, FileNotFoundError):
-          puzzle_part.answer = _read_contents(url).decode('utf-8')
+          puzzle_part.answer = _read_contents(url).decode('utf-8').strip()
       if puzzle_part.answer is None and self.advent.use_aocd:
         puz = aocd.models.Puzzle(year=self.advent.year, day=self.day)
         if part == 1 and puz.answered_a:
           puzzle_part.answer = puz.answer_a
-        avoid_bug = self.advent.year < 2025 or self.day < 12
-        if part == 2 and avoid_bug and puz.answered_b:
+        if part == 2 and puz.answered_b:
           puzzle_part.answer = puz.answer_b
-    if IPython.get_ipython():  # type: ignore[attr-defined, no-untyped-call, unused-ignore]  # Needed on Windows.
+    # The ignore is needed on Windows.
+    if IPython.get_ipython():  # type: ignore[attr-defined, no-untyped-call, unused-ignore]
       self.print_summary()
 
   def print_summary(self) -> None:
-    """Shows the puzzle input (possibly abbreviated) and any stored answers."""
+    """Show the puzzle input (possibly abbreviated) and any stored answers."""
 
     def display_markdown(text: str) -> None:
       IPython.display.display(IPython.display.Markdown(text))  # type: ignore
@@ -164,7 +162,7 @@ class Puzzle:
     display_markdown(f'The stored answers are: `{answers}`')
 
   def verify(self, part: int, func: Callable[[str], Any], /, *, repeat: int = 1) -> None:
-    """Runs `func` on the puzzle input and check the answer for the part."""
+    """Run `func` on the puzzle input and check the answer for the part."""
     func2: Any = getattr(func, 'func', func)  # For `functools.partial`.
     func_name: str | None = getattr(func2, '__name__', None)
     if func_name and (match := re.match(r'day(\d+)', func_name)):
@@ -191,15 +189,16 @@ class Advent:
     if self.tar_url:
       assert not self.input_url and not self.answer_url
       data_dir = pathlib.Path('./data')
-      if not data_dir.is_dir():
-        data_dir.mkdir()
+      data_dir.mkdir(exist_ok=True)
       if match := re.search(r'([^/]+)\.tar\.gz$', self.tar_url):
         data_name = match[1]
       else:
         raise ValueError(f'{self.tar_url=} must have suffix .tar.gz')
       if not (data_dir / data_name).is_dir():
         with tarfile.open(fileobj=io.BytesIO(_read_contents(self.tar_url)), mode='r:gz') as tf:
-          tf.extractall(path=data_dir)  # Python 3.11.4: use filter='data' for security.
+          # The 'data' filter (from Python 3.10.12, 3.11.4, and 3.12) rejects unsafe members.
+          kwargs: Any = dict(filter='data') if hasattr(tarfile, 'data_filter') else {}
+          tf.extractall(path=data_dir, **kwargs)
       self.input_url = f'{data_dir}/{data_name}/{{year}}_{{day:02d}}_input.txt'
       self.answer_url = f'{data_dir}/{data_name}/{{year}}_{{day:02d}}{{part_letter}}_answer.txt'
 
@@ -211,7 +210,7 @@ class Advent:
     return Puzzle(self, *args, **kwargs)
 
   def show_times(self, *, recompute: bool = False, repeat: int = 1) -> None:
-    """Prints the execution times of all puzzle parts."""
+    """Print the execution times of all puzzle parts."""
     if recompute and repeat > 1:
       print(f'(Computing min times over {repeat} calls.)')
     total = 0.0

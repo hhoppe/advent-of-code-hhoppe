@@ -3,7 +3,8 @@ name = "advent-of-code-hhoppe"
 description = "Library for Advent of Code -- Hugues Hoppe."
 readme = "README.md"
 requires-python = ">=3.10"
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{name = "Hugues Hoppe", email="hhoppe@gmail.com"}]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -13,26 +14,26 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Typing :: Typed",
 ]
-keywords = []
+keywords = ["advent-of-code", "aoc", "puzzles", "jupyter", "notebook", "timing"]
 
-# pip dependencies of the project
-# The lower bounds are the oldest versions that pass the tests under Python 3.10; CI tests them.
-# (Older advent-of-code-data imports pkg_resources without declaring a dependency on setuptools.)
+# The pip dependencies of the project.
+# The lower bounds pass the tests under Python 3.10; CI tests them.  (advent-of-code-data 2.1.1
+# is the first version to treat day 12 as the final day of the 12-day puzzle years from 2025.)
 dependencies = [
-    "advent-of-code-data>=2.0.0",
+    "advent-of-code-data>=2.1.1",
     "IPython>=5.0",
 ]
 
-# This is set automatically by flit using `*.__version__`
+# Flit sets the version from `advent_of_code_hhoppe.__version__`.
 dynamic = ["version"]
 
 [project.urls]
 homepage = "https://github.com/hhoppe/advent-of-code-hhoppe"
 repository = "https://github.com/hhoppe/advent-of-code-hhoppe"
-# Other: `documentation`, `changelog`
+changelog = "https://github.com/hhoppe/advent-of-code-hhoppe/releases"
 
 # Development requirements (PEP 735), which are not part of the published package metadata.
 # CI installs them with `pip install . --group test` or `pip install . --group lint`.
@@ -40,10 +41,11 @@ repository = "https://github.com/hhoppe/advent-of-code-hhoppe"
 test = ["pytest"]
 lint = [
     "mypy", "pyink", "pylint", "pyrefly", "ruff",
+    {include-group = "test"},  # So that the checkers can resolve the imports of the tests.
 ]
 
 [build-system]
-requires = ["flit_core >=3.5,<4"]
+requires = ["flit_core >=3.12,<4"]  # For PEP 639 `license`.
 build-backend = "flit_core.buildapi"
 
 [tool.autopep8]
@@ -78,7 +80,7 @@ recursive = true
 ignore-paths = [".*ipynb_checkpoints"]
 
 [tool.pylint.basic]
-good-names-rgxs = "^[a-z][a-z0-9]?|[A-Z]([A-Z_]*[A-Z])?$"
+good-names-rgxs = "^([a-z][a-z0-9]?|[A-Z]([A-Z_]*[A-Z])?)$"
 
 [tool.pylint.format]
 indent-string = "  "
@@ -86,12 +88,14 @@ expected-line-ending-format = "LF"
 
 [tool.pyrefly]
 min-severity = "warn"
-project-excludes = ["*.ipynb"]
+project-includes = ["**/*.py"]
 
 [tool.pytest.ini_options]
-addopts = "--ignore-glob '*.#*' --doctest-modules"
+addopts = ["--doctest-modules", "--ignore-glob=*.#*"]  # (Emacs lock files end in ".py".)
+testpaths = ["advent_of_code_hhoppe", "test_advent_of_code_hhoppe.py"]
 
 [tool.ruff]
+line-length = 100
 extend-exclude = ["*.ipynb"]
 
 [tool.ruff.lint]
